@@ -259,39 +259,41 @@ def parse_vivado_report(hls_dir):
                 for line in f.readlines():
                     if re.search('transaction', line):
                         result = line.split()
-                        # update min
-                        if result[3] != 'x':
-                            cosim_transactions['InitiationInterval']['min'] = (
-                                int(result[3])
-                                if int(result[3]) < cosim_transactions['InitiationInterval']['min']
-                                else cosim_transactions['InitiationInterval']['min']
+
+                        try:
+                            if result[3] != 'x':
+                                cosim_transactions['InitiationInterval']['min'] = (
+                                    int(result[3])
+                                    if int(result[3]) < cosim_transactions['InitiationInterval']['min']
+                                    else cosim_transactions['InitiationInterval']['min']
+                                )
+                            cosim_transactions['Latency']['min'] = (
+                                int(result[2])
+                                if int(result[2]) < cosim_transactions['Latency']['min']
+                                else cosim_transactions['Latency']['min']
                             )
-                        cosim_transactions['Latency']['min'] = (
-                            int(result[2])
-                            if int(result[2]) < cosim_transactions['Latency']['min']
-                            else cosim_transactions['Latency']['min']
-                        )
-                        # update max
-                        if result[3] != 'x':
-                            cosim_transactions['InitiationInterval']['max'] = (
-                                int(result[3])
-                                if int(result[3]) > cosim_transactions['InitiationInterval']['max']
-                                else cosim_transactions['InitiationInterval']['max']
+                            if result[3] != 'x':
+                                cosim_transactions['InitiationInterval']['max'] = (
+                                    int(result[3])
+                                    if int(result[3]) > cosim_transactions['InitiationInterval']['max']
+                                    else cosim_transactions['InitiationInterval']['max']
+                                )
+                            cosim_transactions['Latency']['max'] = (
+                                int(result[2])
+                                if int(result[2]) > cosim_transactions['Latency']['max']
+                                else cosim_transactions['Latency']['max']
                             )
-                        cosim_transactions['Latency']['max'] = (
-                            int(result[2])
-                            if int(result[2]) > cosim_transactions['Latency']['max']
-                            else cosim_transactions['Latency']['max']
-                        )
-                        # update avg
-                        if result[3] != 'x':
-                            cosim_transactions['InitiationInterval']['avg'] = cosim_transactions['InitiationInterval'][
-                                'avg'
-                            ] + float((int(result[3]) - cosim_transactions['InitiationInterval']['avg']) / i)
-                        cosim_transactions['Latency']['avg'] = cosim_transactions['Latency']['avg'] + float(
-                            (int(result[2]) - cosim_transactions['Latency']['avg']) / i
-                        )
-                        i += 1
+                            if result[3] != 'x':
+                                cosim_transactions['InitiationInterval']['avg'] = cosim_transactions['InitiationInterval'][
+                                    'avg'
+                                ] + float((int(result[3]) - cosim_transactions['InitiationInterval']['avg']) / i)
+                            cosim_transactions['Latency']['avg'] = cosim_transactions['Latency']['avg'] + float(
+                                (int(result[2]) - cosim_transactions['Latency']['avg']) / i
+                            )
+                            i += 1
+
+                        except (IndexError, ValueError):
+                            continue
 
             report['CosimReport']['LatencyMin'] = cosim_transactions['Latency']['min']
             report['CosimReport']['LatencyMax'] = cosim_transactions['Latency']['max']

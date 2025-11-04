@@ -103,10 +103,12 @@ class VivadoWriter(Writer):
             factor = 0
 
         if mode in ['partition', 'reshape']:
-            if typ == 'complete':
-                template = '#pragma HLS ARRAY_{mode} variable={name} {type} dim={dim}'
-            else:
-                template = '#pragma HLS ARRAY_{mode} variable={name} {type} factor={factor} dim={dim}'
+            template = '#pragma HLS ARRAY_RESHAPE variable={name} complete dim=0'
+
+            # if typ == 'complete':
+            #     template = '#pragma HLS ARRAY_{mode} variable={name} {type} dim={dim}'
+            # else:
+            #     template = '#pragma HLS ARRAY_{mode} variable={name} {type} factor={factor} dim={dim}'
 
             return template.format(mode=mode.upper(), name=variable.name, type=typ, factor=factor, dim=0)
 
@@ -216,11 +218,12 @@ class VivadoWriter(Writer):
                         newline += indent + self._make_array_pragma(i) + '\n'
                     for o in model_outputs:
                         newline += indent + self._make_array_pragma(o) + '\n'
+
                     # TODO discussed adding a handle for setting the interface mode for individual input and output arrays
                     # Probably the handle doesn't need to be exposed to the user but should be just set in hls_model.py
-                    newline += indent + '#pragma HLS INTERFACE ap_vld port={},{} \n'.format(
-                        ','.join(all_inputs), ','.join(all_outputs)
-                    )
+                    # newline += indent + '#pragma HLS INTERFACE ap_vld port={},{} \n'.format(
+                    #     ','.join(all_inputs), ','.join(all_outputs)
+                    # )
                     newline += pipeline_pragma
 
                 if io_type == 'io_stream':
